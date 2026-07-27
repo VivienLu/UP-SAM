@@ -1,46 +1,55 @@
-# UP-SAM
-Official Implementation for "UP-SAM: Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation"
+#  Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation
 
-# UP-SAM: Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation"
+[![IEEE BIBM 2024](https://img.shields.io/badge/IEEE%20BIBM-2024-00629B.svg)](https://ieeexplore.ieee.org/abstract/document/10822398)
 
-[![arXiv](https://img.shields.io/badge/BIBM-2024-blue)](https://ieeexplore.ieee.org/abstract/document/10822398)
-
-Official PyTorch implementation of UP-SAM from the paper: "UP-SAM: Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation" Accepted by BIBM, 2024.
+Pytorch implementation of our method for BIBM 2024 paper: " Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation".
 
 ## Contents
 
 - [Abstract](##Abstract)
+- [Installation](##Installation)
 - [Datasets](##Datasets)
 - [Usage](##Usage)
+- [Repository Structure](##Repository Structure)
+- [Citation](##Citation)
 - [Acknowledgment](##Acknowledgment)
 
 ## Abstract
 
-![avatar](./fig/UP-SAM.pdf)
+
+<p align="center">
+  <a href="./fig/UP-SAM.pdf">
+    <img src="./fig/UP-SAM.png" alt="Overview of the UP-SAM framework" width="100%">
+  </a>
+</p>
+
+<p align="center">
+  <em>Overview of UP-SAM. Click the figure to open the vector PDF.</em>
+</p>
 
 Semi-supervised segmentation is extensively employed in medical image analysis due to its ability to leverage a small amount of labeled data alongside abundant unlabeled data. However, its performance is hindered by the inadequate knowledge of the data domain learned from limited labeled data and the absence of effective strategies for exploiting unlabeled regions, especially when annotations are extremely scarce. To address these challenges, the Segment Anything Model (SAM) has emerged as a promising solution. As a foundation model enriched by extensive and diverse domain knowledge, SAM has been leveraged to mitigate the epistemic uncertainty (EU) of semi-supervised segmentation models, while aleatoric uncertainty (AU) is often ignored. In this paper, we propose a novel semi-supervised medical image segmentation framework called UP-SAM, which adapts SAM for dual uncertainty assessments. The framework achieves effective collaboration between large foundation models and domain-specific models, leading to a simultaneous reduction in the impact of EU and AU. The experiments on the left atrium and pancreas datasets demonstrate the superior efficacy of UP-SAM against baseline methods. Particularly, UP-SAM exhibits substantial advantages over other semi-supervised learning models when dealing with exceedingly scarce labeled data. 
 
+## Installation
+
+Download the
+[SAM-Med3D-turbo checkpoint](https://github.com/uni-medical/SAM-Med3D#checkpoint).
+Pass its local path to `train_test.sh` as the final argument.
+
 ## Datasets
 
-**Dataset licensing term**:
+The experiments use:
 
-* Left atrium dataset: http://atriaseg2018.cardiacatlas.org
-* Pancreas dataset: https://wiki.cancerimagingarchive.net/display/Public/Pancreas-CT
+- [2018 Atrial Segmentation Challenge](https://www.cardiacatlas.org/atriaseg2018-challenge/)
+- [NIH Pancreas-CT](https://www.cancerimagingarchive.net/collection/pancreas-ct/)
+
+Preprocess each scan as an HDF5 file containing two arrays named `image` and
+`label`. The first `LABEL_NUM` entries in `train.txt` are treated as labeled
+samples, and the remaining entries are treated as unlabeled samples.
 
 ## Usage
 
-### 1. Clone the repo.;
-
-   ```
-   git clone
-   ```
-
-### 2. Download the [SAM-Med3D-turbo checkpoint](https://github.com/uni-medical/SAM-Med3D#checkpoint);
-
-Its path is passed to `train_test.sh` as the final argument.
-
-### 3. All training and inference commands are provided in `train_test.sh`. Run the script from the repository root:
-
+All commands are provided in `train_test.sh`. Run the script from the
+repository root:
 
 ```bash
 bash train_test.sh \
@@ -54,20 +63,20 @@ bash train_test.sh \
   SAM_CHECKPOINT
 ```
 
-Arguments:
-
 | Argument | Description |
-| --- | --- |
+| :--- | :--- |
 | `METHOD` | Experiment name, for example `UPSAM` |
 | `DATA_DIR` | Root of the preprocessed LA or Pancreas-CT dataset |
-| `SAVE_PATH` | Directory used for checkpoints, logs, and predictions |
+| `SAVE_PATH` | Directory for checkpoints, logs, and predictions |
 | `DATASET` | `LA` or `Pancreas` |
 | `LABEL_NUM` | Number of labeled training volumes |
 | `BATCH_SIZE` | Total batch size; half of each stage-2 batch is labeled |
 | `GPU` | CUDA device index, for example `0` |
 | `SAM_CHECKPOINT` | Path to `sam_med3d_turbo.pth` |
 
-Example for the Left Atrium dataset with two labeled volumes:
+### Examples
+
+Left Atrium with two labeled volumes:
 
 ```bash
 bash train_test.sh \
@@ -81,21 +90,7 @@ bash train_test.sh \
   /path/to/sam_med3d_turbo.pth
 ```
 
-For the one-labeled-volume setting, use a total batch size of 2:
-
-```bash
-bash train_test.sh \
-  UPSAM \
-  /path/to/LA_dataset \
-  ./results \
-  LA \
-  1 \
-  2 \
-  0 \
-  /path/to/sam_med3d_turbo.pth
-```
-
-Example for Pancreas-CT:
+Pancreas-CT with two labeled volumes:
 
 ```bash
 bash train_test.sh \
@@ -109,34 +104,18 @@ bash train_test.sh \
   /path/to/sam_med3d_turbo.pth
 ```
 
-The script sequentially performs:
+> [!NOTE]
+> For the one-labeled-volume setting, use a total batch size of `2`.
 
-1. VNet pre-training for 7,500 iterations with SGD and a learning rate of
+The script runs the complete pipeline:
+
+1. VNet pre-training for 7,500 iterations using SGD with a learning rate of
    `1e-2`.
-2. UP-SAM semi-supervised training for 7,500 iterations with AdamW and a
+2. UP-SAM semi-supervised training for 7,500 iterations using AdamW with a
    learning rate of `1e-5`.
 3. Sliding-window inference using the best domain-specific checkpoint.
 
-Generated files follow this structure:
-
-```text
-SAVE_PATH/
-└── DATASET_lab-LABEL_NUM/
-    └── METHOD/
-        ├── pretrain/
-        │   └── best_model.pth
-        └── semi_train/
-            ├── best_model.pth
-            ├── best_sam_model.pth
-            └── test_prediction/
-                ├── record_log.txt
-                └── *_UPSAM_results.npy
-```
-
-Testing reports Dice, Jaccard index, 95% Hausdorff distance, and average
-symmetric surface distance.
-
-## Repository structure
+## Repository Structure
 
 ```text
 .
@@ -151,6 +130,8 @@ symmetric surface distance.
 
 ## Citation
 
+If you find this repository useful, please cite:
+
 ```bibtex
 @inproceedings{lu2024upsam,
   title     = {UP-SAM: Uncertainty-Informed Adaptation of Segment Anything Model
@@ -164,11 +145,11 @@ symmetric surface distance.
 }
 ```
 
-## Acknowledgment
+## Acknowledgements
 
-Part of the code is adapted from the open-source codebase and original implementations of algorithms, we thank these authors for their fantastic and efficient codebase:
-
-*  SSL4MIS: https://github.com/HiLab-git/SSL4MIS
-*  UPCoL: https://github.com/VivienLu/UPCoL
-*  FUSSNet: https://github.com/grant-jpg/FUSSNet
-*  SAM-Med3D: https://github.com/uni-medical/SAM-Med3D
+This implementation builds on
+[SAM-Med3D](https://github.com/uni-medical/SAM-Med3D),
+[UPCoL](https://github.com/VivienLu/UPCoL),
+[FUSSNet](https://github.com/grant-jpg/FUSSNet), and
+[SSL4MIS](https://github.com/HiLab-git/SSL4MIS). Please follow the licenses and
+citation requirements of the corresponding projects.
