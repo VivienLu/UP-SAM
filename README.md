@@ -6,13 +6,13 @@ Pytorch implementation of our method for BIBM 2024 paper: " UP-SAM: Uncertainty-
 
 ## Contents
 
-- [Abstract](##Abstract)
-- [Installation](##Installation)
-- [Datasets](##Datasets)
-- [Usage](##Usage)
-- [Repository Structure](##RepositoryStructure)
-- [Citation](##Citation)
-- [Acknowledgment](##Acknowledgment)
+- [Abstract](#abstract)
+- [Installation](#installation)
+- [Datasets](#datasets)
+- [Usage](#usage)
+- [Repository Structure](#repository-structure)
+- [Citation](#citation)
+- [Acknowledgements](#acknowledgements)
 
 ## Abstract
 
