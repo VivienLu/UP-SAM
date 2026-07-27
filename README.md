@@ -1,8 +1,8 @@
-#  Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation
+#  UP-SAM: Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation
 
 [![IEEE BIBM 2024](https://img.shields.io/badge/IEEE%20BIBM-2024-00629B.svg)](https://ieeexplore.ieee.org/abstract/document/10822398)
 
-Pytorch implementation of our method for BIBM 2024 paper: " Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation".
+Pytorch implementation of our method for BIBM 2024 paper: " UP-SAM: Uncertainty-Informed Adaptation of Segment Anything Model for Semi-Supervised Medical Image Segmentation".
 
 ## Contents
 
@@ -141,7 +141,8 @@ If you find this repository useful, please cite:
                Biomedicine (BIBM)},
   pages     = {2256--2261},
   year      = {2024},
-  doi       = {10.1109/BIBM62325.2024.10822398}
+  doi       = {10.1109/BIBM62325.2024.10822398},
+  publisher = {{IEEE}}
 }
 ```
 
